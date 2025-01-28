@@ -12,10 +12,10 @@ public class ThrowUtils {
 
 
     /**
-     * 成功 就 抛异常
+     * 手动抛异常
      *
-     * @param condition
-     * @param runtimeException
+     * @param condition        结果
+     * @param runtimeException true就抛异常
      */
     public static void throwIf(boolean condition, RuntimeException runtimeException) {
         if (condition) {

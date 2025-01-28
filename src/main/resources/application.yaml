@@ -15,6 +15,10 @@ spring:
     store-type: redis
     # session 30 天过期
     timeout: 18000
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
 
 
     # redis
@@ -59,16 +63,45 @@ knife4j:
 
 # 自己的 一些配置
 ym:
-  # 密码 加盐
-  encrypt: YunMao
-  # 默认 密码
-  default-password: 1234567890
-  # 账号长度 最小值
-  account-length : 8
-  # 密码长度 最小值
-  password-length: 8
-  # 发送邮件
-  emailFrom: 1761230164@qq.com
+  # 用户配置
+  user:
+    # 密码 加盐
+    encrypt: YunMao
+    # 默认 密码
+    default-password: 1234567890
+    # 账号长度 最小值
+    account-length: 8
+    # 密码长度 最小值
+    password-length: 8
+  #邮箱配置
+  email:
+    # 发送邮件
+    emailFrom: 1761230164@qq.com
+  # 本地图片配置
+  local-picture:
+    # 图片上传大小(单位mb,默认1mb)
+    max-size: 2
+    # 图片只能上传类型
+    allow-types:
+      - jpeg
+      - png
+      - jpg
+      - gif
+      - webp
+    # 本地图片存放目录
+    path: D:/saveImage/
+    # 本地头像存放目录
+    avatarPath: avatar/
+    # 本地文章图片存放目录
+    articlePath: article/
+    # 本地其他图片存放目录
+    otherPath: other/
+    # 图片访问地址
+    url: http://localhost:9999/image/
+
+
+
+
 
 
 

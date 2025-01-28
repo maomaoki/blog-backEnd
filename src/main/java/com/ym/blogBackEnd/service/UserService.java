@@ -5,13 +5,12 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.ym.blogBackEnd.common.request.DeleteRequest;
 import com.ym.blogBackEnd.model.domain.User;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.ym.blogBackEnd.model.dto.user.UserEmailCodeDto;
-import com.ym.blogBackEnd.model.dto.user.UserRegisterEmailDto;
+import com.ym.blogBackEnd.model.dto.user.UserSendEmailCode;
+import com.ym.blogBackEnd.model.dto.user.UserRegisterDto;
 import com.ym.blogBackEnd.model.dto.user.UserUpdateDto;
 import com.ym.blogBackEnd.model.dto.user.admin.AdminUserAddDto;
 import com.ym.blogBackEnd.model.dto.user.admin.AdminUserQueryDto;
 import com.ym.blogBackEnd.model.dto.user.admin.AdminUserUpdateDto;
-import com.ym.blogBackEnd.model.vo.user.UserPageVo;
 import com.ym.blogBackEnd.model.vo.user.UserVo;
 
 import javax.servlet.http.HttpServletRequest;
@@ -28,9 +27,9 @@ public interface UserService extends IService<User> {
     /**
      * 用户 发送 邮箱验证码
      *
-     * @param userEmailCodeDto
+     * @param userSendEmailCode
      */
-    void userSendEmailCode(UserEmailCodeDto userEmailCodeDto);
+    void userSendEmailCode(UserSendEmailCode userSendEmailCode);
 
 
     /**
@@ -43,16 +42,6 @@ public interface UserService extends IService<User> {
     UserVo userLogin(String account, String password, HttpServletRequest request);
 
 
-    /**
-     * 用户注册
-     *
-     * @param userAccount      用户账户
-     * @param userPassword     用户密码
-     * @param checkPassword    校验密码
-     * @return 新用户 id
-     */
-    @Deprecated
-    long userRegister(String userAccount, String userPassword, String checkPassword);
 
 
     /**
@@ -60,7 +49,7 @@ public interface UserService extends IService<User> {
      *
      * @return 新用户 id
      */
-    long userEmailRegister(UserRegisterEmailDto userRegisterEmailDto);
+    long userRegister(UserRegisterDto userRegisterDto);
 
 
     /**
@@ -88,13 +77,6 @@ public interface UserService extends IService<User> {
      */
     UserVo userToVo(User user);
 
-    /**
-     * 将 user 列表 转成 分页查询结果 list
-     *
-     * @param userList
-     * @return
-     */
-    List<UserPageVo> userToPageVoList(List<User> userList);
 
     /**
      * 获取 脱敏后的用户 列表
@@ -173,7 +155,7 @@ public interface UserService extends IService<User> {
      * @param adminUserQueryDto
      * @return
      */
-    Page<UserPageVo> adminUserVoByPage(AdminUserQueryDto adminUserQueryDto);
+    Page<UserVo> adminUserVoByPage(AdminUserQueryDto adminUserQueryDto);
 
 
     /**

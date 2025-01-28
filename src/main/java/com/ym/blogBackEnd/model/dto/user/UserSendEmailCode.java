@@ -10,7 +10,7 @@ import lombok.Data;
  * @description: 用户验证码请求类
  */
 @Data
-public class UserEmailCodeDto {
+public class UserSendEmailCode {
 
     /**
      * 请求 账号

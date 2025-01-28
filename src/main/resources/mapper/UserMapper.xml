@@ -14,7 +14,7 @@
             <result property="userRole" column="userRole" />
             <result property="userAvatar" column="userAvatar" />
             <result property="userTags" column="userTags" />
-            <result property="userProfile" column="userProfile" />
+            <result property="userIntroduction" column="userIntroduction" />
             <result property="userFGender" column="userFGender" />
             <result property="userAge" column="userAge" />
             <result property="userStatus" column="userStatus" />
@@ -27,7 +27,7 @@
 
     <sql id="Base_Column_List">
         id,userAccount,userEmail,userPhone,userPassword,userName,
-        userRole,userAvatar,userTags,userProfile,userFGender,
+        userRole,userAvatar,userTags,userIntroduction,userFGender,
         userAge,userStatus,registeredSource,editTime,createTime,
         updateTime,isDelete
     </sql>

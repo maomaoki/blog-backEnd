@@ -40,7 +40,7 @@ public class AdminUserQueryDto extends PageRequest implements Serializable {
     /**
      * 用户简介
      */
-    private String userProfile;
+    private String userIntroduction;
 
     /**
      * 用户标签 json 字符串

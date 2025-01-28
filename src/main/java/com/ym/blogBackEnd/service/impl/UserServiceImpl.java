@@ -11,20 +11,19 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.ym.blogBackEnd.common.entity.EmailCodeRedis;
 import com.ym.blogBackEnd.common.request.DeleteRequest;
-import com.ym.blogBackEnd.config.YmConfig;
+import com.ym.blogBackEnd.config.UserConfig;
 import com.ym.blogBackEnd.constant.CodeTypeConstant;
 import com.ym.blogBackEnd.constant.UserConstant;
 import com.ym.blogBackEnd.enums.EmailCodeTypeEnum;
 import com.ym.blogBackEnd.exception.CustomizeException;
 import com.ym.blogBackEnd.exception.ErrorCode;
 import com.ym.blogBackEnd.model.domain.User;
-import com.ym.blogBackEnd.model.dto.user.UserEmailCodeDto;
-import com.ym.blogBackEnd.model.dto.user.UserRegisterEmailDto;
+import com.ym.blogBackEnd.model.dto.user.UserSendEmailCode;
+import com.ym.blogBackEnd.model.dto.user.UserRegisterDto;
 import com.ym.blogBackEnd.model.dto.user.UserUpdateDto;
 import com.ym.blogBackEnd.model.dto.user.admin.AdminUserAddDto;
 import com.ym.blogBackEnd.model.dto.user.admin.AdminUserQueryDto;
 import com.ym.blogBackEnd.model.dto.user.admin.AdminUserUpdateDto;
-import com.ym.blogBackEnd.model.vo.user.UserPageVo;
 import com.ym.blogBackEnd.model.vo.user.UserVo;
 import com.ym.blogBackEnd.service.UserService;
 import com.ym.blogBackEnd.mapper.UserMapper;
@@ -56,7 +55,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
 
     @Resource
-    private YmConfig ymConfig;
+    private UserConfig userConfig;
 
     @Resource
     private EmailUtils emailUtils;
@@ -67,14 +66,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     /**
      * 用户 发送 邮箱验证码
      *
-     * @param userEmailCodeDto
+     * @param userSendEmailCode
      */
     @Override
-    public void userSendEmailCode(UserEmailCodeDto userEmailCodeDto) {
+    public void userSendEmailCode(UserSendEmailCode userSendEmailCode) {
 
-        String account = userEmailCodeDto.getAccount();
-        String email = userEmailCodeDto.getEmail();
-        Integer type = userEmailCodeDto.getType();
+        String account = userSendEmailCode.getAccount();
+        String email = userSendEmailCode.getEmail();
+        Integer type = userSendEmailCode.getType();
 
         // 1. 校验参数
         ThrowUtils.throwIf(
@@ -176,75 +175,21 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     }
 
 
-    @Deprecated
     /**
      * 用户注册
      *
-     * @param userAccount   用户账户
-     * @param userPassword  用户密码
-     * @param checkPassword 校验密码
-     * @return 新用户 id
-     */
-    @Override
-    public long userRegister(String userAccount, String userPassword, String checkPassword) {
-        // 1. 校验参数
-        ThrowUtils.throwIf(
-                StrUtil.hasBlank(userAccount, userPassword, checkPassword),
-                ErrorCode.ERROR_PARAMS,
-                "账号或密码不能为空"
-        );
-
-        // 2. 校验 账号 密码 是否合法
-        verifyAccountAndPassword(userAccount, userPassword, checkPassword);
-
-        // 3. 查询 是否 存在
-        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
-        userQueryWrapper.eq("userAccount", userAccount);
-
-        User user = this.baseMapper.selectOne(userQueryWrapper);
-        if (user != null) {
-            log.info("user is have, Don't repeat registration");
-            throw new CustomizeException(
-                    ErrorCode.ERROR_PARAMS,
-                    "账号重复"
-            );
-        }
-
-        // 4. 正常注册
-        user = new User();
-        // 密码 一定要 加密
-        user.setUserPassword(getEncryptPassword(userPassword));
-        // 添加 一些 初始值
-        user.setUserAccount(userAccount);
-        user.setUserRole(UserConstant.USER_ROLE_USER);
-        user.setUserStatus(UserConstant.USER_STATUS_IS_ACTIVE);
-        user.setUserName(StrUtil.subPre(userAccount, 5));
-
-        // todo 注册来源 现在默认为账号注册
-        user.setRegisteredSource(UserConstant.USER_REGISTER_FROM_ACCOUNT);
-
-
-        // 5. 插入数据库
-        this.baseMapper.insert(user);
-        return user.getId();
-    }
-
-
-    /**
-     * 用户 邮箱 注册账号
-     *
-     * @param userRegisterEmailDto
+     * @param userRegisterDto
      * @return
      */
     @Override
-    public long userEmailRegister(UserRegisterEmailDto userRegisterEmailDto) {
+    public long userRegister(UserRegisterDto userRegisterDto) {
 
         // 1.校验参数(这里 只需要 校验 验证码相关的 剩下服用前面注册代码)
-        String account = userRegisterEmailDto.getAccount();
-        String password = userRegisterEmailDto.getPassword();
-        String confirmPassword = userRegisterEmailDto.getConfirmPassword();
-        String email = userRegisterEmailDto.getEmail();
-        String code = userRegisterEmailDto.getCode();
+        String account = userRegisterDto.getAccount();
+        String password = userRegisterDto.getPassword();
+        String confirmPassword = userRegisterDto.getConfirmPassword();
+        String email = userRegisterDto.getEmail();
+        String code = userRegisterDto.getCode();
         ThrowUtils.throwIf(
                 StrUtil.hasBlank(account, email, code),
                 ErrorCode.ERROR_PARAMS, "账号或邮箱或验证码不能为空");
@@ -402,7 +347,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         // 2. 补 默认参数
         user.setUserStatus(UserConstant.USER_STATUS_IS_ACTIVE);
         user.setRegisteredSource(UserConstant.USER_REGISTER_FROM_ADMIN);
-        user.setUserPassword(getEncryptPassword(ymConfig.getDefaultPassword()));
+        user.setUserPassword(getEncryptPassword(userConfig.getDefaultPassword()));
 
         if (StrUtil.isEmpty(user.getUserName())) {
             user.setUserName(StrUtil.subPre(userAccount, 5));
@@ -539,7 +484,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
      * @return
      */
     @Override
-    public Page<UserPageVo> adminUserVoByPage(AdminUserQueryDto adminUserQueryDto) {
+    public Page<UserVo> adminUserVoByPage(AdminUserQueryDto adminUserQueryDto) {
         // 校验 参数
         ThrowUtils.throwIf(
                 ObjUtil.isEmpty(adminUserQueryDto),
@@ -558,11 +503,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         );
 
         // 结果 脱敏
-        List<UserPageVo> userToPageVoList = userToPageVoList(userPage.getRecords());
+        List<UserVo> userToVoList = userToVoList(userPage.getRecords());
 
         // 构建 分页 对象
-        Page<UserPageVo> userPageVoPage = new Page<>(current, pageSize, userPage.getTotal());
-        userPageVoPage.setRecords(userToPageVoList);
+        Page<UserVo> userPageVoPage = new Page<>(current, pageSize, userPage.getTotal());
+        userPageVoPage.setRecords(userToVoList);
         return userPageVoPage;
     }
 
@@ -574,7 +519,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
      */
     @Override
     public String getEncryptPassword(String userPassword) {
-        return DigestUtils.md5DigestAsHex((ymConfig.getEncrypt() + userPassword).getBytes());
+        return DigestUtils.md5DigestAsHex((userConfig.getEncrypt() + userPassword).getBytes());
     }
 
     /**
@@ -649,21 +594,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     }
 
 
-    /**
-     * 将 user 列表 转成 分页查询结果 list
-     *
-     * @param userList
-     * @return
-     */
-    @Override
-    public List<UserPageVo> userToPageVoList(List<User> userList) {
-        if (CollUtil.isEmpty(userList)) {
-            return new ArrayList<>();
-        }
-        return userList.stream().map(e -> BeanUtil.copyProperties(e, UserPageVo.class)).collect(Collectors.toList());
-    }
-
-
     @Override
     public List<UserVo> userToVoList(List<User> userList) {
         if (CollUtil.isEmpty(userList)) {
@@ -691,7 +621,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         Long id = adminUserQueryDto.getId();
         String userAccount = adminUserQueryDto.getUserAccount();
         String userName = adminUserQueryDto.getUserName();
-        String userProfile = adminUserQueryDto.getUserProfile();
+        String userIntroduction = adminUserQueryDto.getUserIntroduction();
         String userTags = adminUserQueryDto.getUserTags();
         String userRole = adminUserQueryDto.getUserRole();
         String userRegistrationSource = adminUserQueryDto.getUserRegistrationSource();
@@ -707,7 +637,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         queryWrapper.eq(StrUtil.isNotBlank(userRegistrationSource), "userRegistrationSource", userRegistrationSource);
         queryWrapper.like(StrUtil.isNotBlank(userAccount), "userAccount", userAccount);
         queryWrapper.like(StrUtil.isNotBlank(userName), "userName", userName);
-        queryWrapper.like(StrUtil.isNotBlank(userProfile), "userProfile", userProfile);
+        queryWrapper.like(StrUtil.isNotBlank(userIntroduction), "userIntroduction", userIntroduction);
 
         // 标签
         // 转 list 再 like 拼接
@@ -745,9 +675,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
      */
     private void verifyAccountAndPassword(String userAccount, String userPassword, String checkPassword) {
         boolean result =
-                userAccount.length() < ymConfig.getAccountLength() ||
-                        userPassword.length() < ymConfig.getPasswordLength() ||
-                        checkPassword.length() < ymConfig.getPasswordLength() ||
+                userAccount.length() < userConfig.getAccountLength() ||
+                        userPassword.length() < userConfig.getPasswordLength() ||
+                        checkPassword.length() < userConfig.getPasswordLength() ||
                         userPassword.length() != checkPassword.length();
 
         ThrowUtils.throwIf(

@@ -1,73 +1,56 @@
 package com.ym.blogBackEnd.controller;
 
+
 import com.ym.blogBackEnd.common.response.BaseResponse;
-import com.ym.blogBackEnd.utils.EmailUtils;
-import com.ym.blogBackEnd.utils.RedisUtils;
+import com.ym.blogBackEnd.exception.ErrorCode;
+import com.ym.blogBackEnd.manager.picture.PictureManager;
 import com.ym.blogBackEnd.utils.ResultUtils;
-import org.springframework.web.bind.annotation.GetMapping;
+import com.ym.blogBackEnd.utils.ThrowUtils;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import java.io.File;
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/")
 public class MainController {
 
-
     @Resource
-    private EmailUtils emailUtils;
+    private PictureManager pictureManager;
+
+    @PostMapping("/file")
+    public BaseResponse<String> fileTest(@RequestParam(value = "file",required = false) MultipartFile multipartFile) {
+
+            ThrowUtils.throwIf(multipartFile == null,
+                    ErrorCode.ERROR_PARAMS,"文件不能为空");
 
 
-    @Resource
-    private RedisUtils redisUtils;
 
-    /**
-     * 健康检查
-     */
-    @GetMapping("/health")
-    public BaseResponse<String> health() {
-        return ResultUtils.success("ok");
-    }
+        String dir = "D:/test/";
+        String originalFilename = multipartFile.getOriginalFilename();
 
+        File temporaryFile = null;
+        try {
+            temporaryFile = File.createTempFile("test/image/" + originalFilename,null);
+            multipartFile.transferTo(temporaryFile);
+            String result = pictureManager.uploadPicture(
+                    temporaryFile,
+                    dir,
+                    originalFilename
 
-    /**
-     * 健康检查 - 邮件
-     */
-    @GetMapping("/email")
-    public BaseResponse<String> email() {
-        String to = "546211257@qq.com";
-        String subject = "测试邮件";
-        String content = "测试邮件内容";
-        emailUtils.sendEmail(to, subject, content);
-        return ResultUtils.success("ok");
-    }
+            );
+            return ResultUtils.success(result);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } finally {
+            temporaryFile.delete();
+        }
 
-
-    /**
-     * 健康检查 - redis
-     */
-    @GetMapping("/redis/set")
-    public BaseResponse<String> redisSet() {
-        redisUtils.setValue("test", "test", 100);
-        return ResultUtils.success("ok");
-    }
-
-    @GetMapping("/redis/get")
-    public BaseResponse<Object> redisGet() {
-        return ResultUtils.success(redisUtils.getValue("test"));
-    }
-
-    @GetMapping("/redis/delete")
-    public BaseResponse<Boolean> redisDelete() {
-        redisUtils.deleteKey("test");
-        return ResultUtils.success(true);
-    }
-
-
-    @GetMapping("/redis/has")
-    public BaseResponse<Boolean> redisHas() {
-        return ResultUtils.success(redisUtils.hasKey("test"));
     }
 
 }

@@ -19,7 +19,6 @@ public @interface UserAuthCheck {
     /**
      * 必须 有 某个 角色
      *
-     * @return
      */
     String mustRole() default "";
 }

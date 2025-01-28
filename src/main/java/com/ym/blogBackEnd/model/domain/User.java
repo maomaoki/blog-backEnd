@@ -62,7 +62,7 @@ public class User implements Serializable {
     /**
      * 用户简介
      */
-    private String userProfile;
+    private String userIntroduction;
 
     /**
      * 用户性别：0-男，1-女

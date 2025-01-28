@@ -5,7 +5,7 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- * 用户 注册 请求 类
+ * 用户 邮箱注册 请求 类
  *
  * @author YunMao
  */
@@ -29,5 +29,15 @@ public class UserRegisterDto implements Serializable {
      * 确认 密码
      */
     private String confirmPassword;
+
+    /**
+     * 邮箱
+     */
+    private String email;
+
+    /**
+     * 验证码
+     */
+    private String code;
 
 }

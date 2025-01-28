@@ -10,7 +10,6 @@ import com.ym.blogBackEnd.model.dto.user.*;
 import com.ym.blogBackEnd.model.dto.user.admin.AdminUserAddDto;
 import com.ym.blogBackEnd.model.dto.user.admin.AdminUserQueryDto;
 import com.ym.blogBackEnd.model.dto.user.admin.AdminUserUpdateDto;
-import com.ym.blogBackEnd.model.vo.user.UserPageVo;
 import com.ym.blogBackEnd.model.vo.user.UserVo;
 import com.ym.blogBackEnd.service.UserService;
 import com.ym.blogBackEnd.utils.ResultUtils;
@@ -34,13 +33,12 @@ public class UserController {
     private UserService userService;
 
 
-    @PostMapping("/emailCode/send")
-    public BaseResponse<Boolean> userEmailCodeSend(@RequestBody UserEmailCodeDto userEmailCodeDto) {
-        userService.userSendEmailCode(userEmailCodeDto);
+    @PostMapping("/sendEmailCode")
+    public BaseResponse<Boolean> userSendEmailCode(@RequestBody UserSendEmailCode userSendEmailCode) {
+        userService.userSendEmailCode(userSendEmailCode);
         return ResultUtils.success(true, "发送成功");
 
     }
-
 
 
     @PostMapping("/login")
@@ -52,25 +50,11 @@ public class UserController {
     }
 
 
-
-    @Deprecated
     @PostMapping("/register")
     public BaseResponse<Long> userRegister(@RequestBody UserRegisterDto userRegisterDto) {
 
-        String account = userRegisterDto.getAccount();
-        String password = userRegisterDto.getPassword();
-        String confirmPassword = userRegisterDto.getConfirmPassword();
-
-        return ResultUtils.success(userService.userRegister(account, password, confirmPassword), "注册成功");
+        return ResultUtils.success(userService.userRegister(userRegisterDto), "注册成功");
     }
-
-
-    @PostMapping("/emailRegister")
-    public BaseResponse<Long> userEmailRegister(@RequestBody UserRegisterEmailDto userRegisterEmailDto) {
-
-        return ResultUtils.success(userService.userEmailRegister(userRegisterEmailDto), "注册成功");
-    }
-
 
 
     @PostMapping("/logout")
@@ -124,6 +108,7 @@ public class UserController {
         return ResultUtils.success(user, "查询成功");
     }
 
+
     @PostMapping("/admin/get/userVo")
     @UserAuthCheck(mustRole = UserConstant.USER_ROLE_ADMIN)
     public BaseResponse<UserVo> adminGetUserVoById(@RequestBody DeleteRequest deleteRequest) {
@@ -134,8 +119,8 @@ public class UserController {
 
     @PostMapping("/admin/list/page")
     @UserAuthCheck(mustRole = UserConstant.USER_ROLE_ADMIN)
-    public BaseResponse<Page<UserPageVo>> AdminUserQuery(@RequestBody AdminUserQueryDto adminUserQueryDto) {
-        Page<UserPageVo> userVoPage = userService.adminUserVoByPage(adminUserQueryDto);
+    public BaseResponse<Page<UserVo>> AdminUserQuery(@RequestBody AdminUserQueryDto adminUserQueryDto) {
+        Page<UserVo> userVoPage = userService.adminUserVoByPage(adminUserQueryDto);
         return ResultUtils.success(userVoPage, "查询成功");
     }
 }

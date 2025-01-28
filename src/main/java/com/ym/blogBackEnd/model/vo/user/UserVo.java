@@ -1,5 +1,8 @@
 package com.ym.blogBackEnd.model.vo.user;
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableLogic;
 import lombok.Data;
 import java.io.Serializable;
 import java.util.Date;
@@ -29,7 +32,7 @@ public class UserVo implements Serializable {
     private String userEmail;
 
     /**
-     * 手机号
+     * 用户手机号
      */
     private String userPhone;
 
@@ -40,31 +43,44 @@ public class UserVo implements Serializable {
     private String userName;
 
     /**
+     * 用户角色：user/admin/blackUser
+     */
+    private String userRole;
+
+    /**
      * 用户头像
      */
     private String userAvatar;
 
     /**
-     * 用户简介
-     */
-    private String userProfile;
-
-    /**
-     * 用户标签 json 字符串
+     * 用户标签 - json字符串
      */
     private String userTags;
 
     /**
-     * 用户角色：boss/admin/user/blackUser
+     * 用户简介
      */
-    private String userRole;
-
+    private String userIntroduction;
 
     /**
-     * 注册来源: 账号/qq邮箱/管理员添加
+     * 用户性别：0-男，1-女
      */
-    private String userRegistrationSource;
+    private Integer userFGender;
 
+    /**
+     * 用户年龄
+     */
+    private Integer userAge;
+
+    /**
+     * 用户状态：0-正常，1-封禁
+     */
+    private Integer userStatus;
+
+    /**
+     * 用户注册来源：account/email/admin
+     */
+    private String registeredSource;
 
     /**
      * 创建时间
@@ -75,8 +91,6 @@ public class UserVo implements Serializable {
      * 更新时间
      */
     private Date updateTime;
-
-    // todo 少了一个登录ip
 
 
     @TableField(exist = false)

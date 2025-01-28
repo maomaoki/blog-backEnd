@@ -5,16 +5,16 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 /**
- * @Title: YmConfig
+ * @Title: UserConfig
  * @Author YunMao
- * @Package com.ym.blogbackend.config
- * @Date 2025/1/13 18:31
- * @description: 云猫配置文件变量读取
+ * @Package com.ym.blogBackEnd.config
+ * @Date 2025/1/28 22:27
+ * @description: 用户配置项
  */
 @Data
 @Component
-@ConfigurationProperties(prefix = "ym")
-public class YmConfig {
+@ConfigurationProperties(prefix = "ym.user")
+public class UserConfig {
 
     /**
      * 加盐 key
@@ -35,9 +35,4 @@ public class YmConfig {
      * 密码 最小长度
      */
     private Integer passwordLength;
-
-    /**
-     * 发送邮件
-     */
-    private String emailFrom;
 }

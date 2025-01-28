@@ -1,6 +1,6 @@
 package com.ym.blogBackEnd.utils;
 
-import com.ym.blogBackEnd.config.YmConfig;
+import com.ym.blogBackEnd.config.EmailConfig;
 import lombok.Data;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -24,7 +24,7 @@ public class EmailUtils {
     private JavaMailSender mailSender;
 
     @Resource
-    private YmConfig ymConfig;
+    private EmailConfig emailConfig;
 
 
     /**
@@ -38,7 +38,7 @@ public class EmailUtils {
 
         // 创建邮件消息
         SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom(ymConfig.getEmailFrom());
+        message.setFrom(emailConfig.getEmailFrom());
         // 设置收件人
         message.setTo(to);
         // 设置邮件主题
